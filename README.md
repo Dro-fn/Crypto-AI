@@ -102,10 +102,4 @@ CryptoAI is your all-in-one learning companion for cryptocurrencies and blockcha
 
 ---
 
-## 💻 Deployment  
 
-To deploy the application:  
-1. Clone the repository:  
-   ```bash
-   git clone https://github.com/heebaaltaf/crypto-ai.git
-   cd crypto-ai
