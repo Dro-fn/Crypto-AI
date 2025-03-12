@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto AI</title>
+    <!-- Link to the CSS file in the static folder -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <!-- Disclaimer Modal -->
+    <div id="disclaimer-modal" class="modal"style="display: none;" >
+        <div class="modal-content">
+            <h2>Subscription Information</h2>
+            <p>
+                Unlock the full potential of our platform by subscribing to gain exclusive access to advanced features and insights.
+                Choose from our <strong>one-time payment</strong> option for a single month's access or opt for a <strong>recurring subscription</strong> for uninterrupted benefits.
+            </p>
+            <p>
+                Before proceeding, please review the following:
+                <ul>
+                    <li><strong>One-Time Payment:</strong> Enjoy 1-month full access to our premium features. This is a non-recurring option.</li>
+                    <li><strong>Recurring Subscription:</strong> Automatically renews every month, ensuring seamless access to all features without interruption.</li>
+                    <li><strong>Refund Policy:</strong> Please note that payments are non-refundable. Ensure you review the features before subscribing.</li>
+                </ul>
+            </p>
+            <p>
+                By proceeding with the payment, you confirm that you have reviewed the options and agree to the <strong>Terms and Conditions</strong> of the subscription. 
+                You can cancel your recurring subscription anytime before the next billing cycle.
+            </p>
+            <button id="agree-button">Proceed to Payment</button>
+        </div>
+    </div>
+
+    <header>
+        <h1>Crypto AI</h1>
+        <p> 24 HOUR analysis!</p>
+    </header>
+    <main>
+        <p id="user-email" style="display: none; font-weight: bold; background-color: rgb(0, 255, 85)"></p> <!-- User email display -->
+       
+        <div id="subscription-status" style="display: none;"></div>
+        <button
+            id="logout-button"
+            style="display: none; background-color: red; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            Logout
+        </button>
+        
+        <!-- Characters with Speech Bubbles -->
+        <div id="characters-container">
+            <div class="character-wrapper">
+                <img id="catnap" class="character" src="/static/images/crypto.webp" alt="bitcoin">
+            </div>
+            <div class="character-wrapper">
+                <img id="funbot" class="character" src="/static/images/dall1.webp" alt="FunBot">
+            </div>
+            <div class="character-wrapper">
+                <img id="clukr" class="character" src="/static/images/dall4.webp" alt="Clukr">
+            </div>
+            <div class="character-wrapper">
+                <img id="clukr" class="character" src="/static/images/dall2.webp" alt="Clukr">
+            </div>
+            <div class="character-wrapper">
+                <img id="raddy" class="character" src="/static/images/dall5.webp" alt="Raddy">
+            </div>
+        </div>
+
+        <div id="button-container">
+            <div class="dropdown">
+                <button id="crypto-dropdown-button">Select Cryptocurrency</button>
+                <div id="crypto-dropdown-menu" class="dropdown-menu">
+                    <input 
+                        type="text" 
+                        id="crypto-search-input" 
+                        placeholder="Search Cryptocurrency..." 
+                        class="dropdown-search" 
+                    />
+                </div>
+            </div>
+            <button id="start-recognition">🎤 Begin the Conversation</button>
+            <button id="end-class">⏹ End Conversation</button>
+        </div>
+
+        <!-- Analysis and Recommendation Button -->
+        <button id="analysis-button">📊 Analysis and Recommendation</button>
+
+        <!-- Analysis and Recommendation Box -->
+        <div id="analysis-response-container" class="analysis-box">
+            <h3>Analysis and Recommendation</h3>
+            <div id="analysis-response"></div>
+        </div>
+        <!-- <button id="live-orderbook-button" onclick="console.log('Inline Order Book button clicked.')">
+            📊 Live Order Book
+        </button>
+        <div id="live-orderbook-container" class="analysis-box">
+            <h3>Live Order Book</h3>
+            <div id="live-orderbook-content"></div>
+        </div> -->
+
+        <!-- Output Area -->
+        <div id="output">Let's start trading!</div>
+    </main>
+    <footer>
+        <p>Made with ❤️ by DroFn's Team</p>
+    </footer>
+    
+    <script src="/static/js/dynamic-listening.js" defer></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM fully loaded");
+
+            const modal = document.getElementById("disclaimer-modal");
+            const agreeButton = document.getElementById("agree-button");
+            const userEmailDisplay = document.getElementById("user-email");
+            const logoutButton = document.getElementById("logout-button");
+            const subscriptionStatusDisplay = document.getElementById("subscription-status");
+            const API_BASE_URL =
+                    window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+                        ? "http://127.0.0.1:8000"
+                        : "https://crypto-ai-pi.vercel.app";
+
+            
+
+            // const checkSubscriptionStatus = async () => {
+            //     const userId = localStorage.getItem("user_id");
+            //     const token = localStorage.getItem("token");
+                
+            //     fetch(`/api/check-access?user_id=${userId}`, {
+            //     method: "GET",
+            //     headers: { "Content-Type": "application/json" },
+            // })
+            //     .then((response) => {
+            //         if (!response.ok) {
+            //             throw new Error(`HTTP error! status: ${response.status}`);
+            //         }
+            //         return response.json();
+            //     })
+            //     .then((data) => {
+            //         console.log(data.message); // Log the response message for debugging
+
+                    
+
+            //         // Redirect based on the backend response
+            //         if (data.redirect_to === "/subscription") {
+            //             window.location.href = "/subscription";
+            //         } else if (data.redirect_to === "/html3") {
+            //             window.location.href = "/dashboard3";
+            //         } else {
+            //             console.error("Unexpected redirect path:", data.redirect_to);
+            //         }
+            //     })
+            //     .catch((error) => {
+            //         console.error("Error fetching access status:", error);
+            //         alert("An error occurred while checking access status. Please try again.");
+            //     });}
+
+            const checkSubscriptionStatus = async () => {
+                const userId = localStorage.getItem("user_id");
+
+                if (!userId) {
+                    console.error("User ID is missing. Redirecting to login.");
+                    window.location.href = "/login";
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/check-access?user_id=${userId}`, {
+                        method: "GET",
+                        headers: { "Content-Type": "application/json" },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log("Access status response:", data);
+
+                    // Update subscription status display
+                    const subscriptionStatusDisplay = document.getElementById("subscription-status");
+                    if (subscriptionStatusDisplay && data.redirect_to === "/html3") {
+                        subscriptionStatusDisplay.textContent = data.message; // Show subscription type
+                        subscriptionStatusDisplay.style.display = "block";
+                    }
+
+                    // Handle redirection
+                    if (data.redirect_to === "/subscription") {
+                        window.location.href = "/subs";
+                    } else if (data.redirect_to === "/html3") {
+                        window.location.href = "/dashboard3";
+                    } else {
+                        console.error("Unexpected redirect path:", data.redirect_to);
+                    }
+                } catch (error) {
+                    console.error("Error fetching access status:", error);
+                    alert("An error occurred while checking access status. Please try again.");
+                }
+            };
+
+            const checkLoginStatus = () => {
+                const token = localStorage.getItem("token");
+                const email = localStorage.getItem("email");
+
+                if (!token || !email) {
+                    console.log("User not logged in. Redirecting to login page.");
+                    window.location.href = "/login";
+                    return false;
+                }
+
+                console.log("User is logged in:", email);
+                       
+
+                // Ensure userEmailDisplay exists before trying to access its properties
+                if (userEmailDisplay) {
+                    userEmailDisplay.textContent = `Logged in as: ${email}`;
+                    userEmailDisplay.style.display = "block";
+                   
+                } else {
+                    console.error("userEmailDisplay element not found in the DOM.");
+                }
+
+                if (logoutButton) {
+                    logoutButton.style.display = "block";
+                }
+
+                return true;
+            };
+
+
+            logoutButton?.addEventListener("click", () => {
+                console.log("Logout button clicked");
+                localStorage.removeItem("token");
+                localStorage.removeItem("email");
+                alert("Logged out successfully!");
+                window.location.href = "/login";
+            });
+
+            agreeButton?.addEventListener("click", () => {
+                console.log("Agree button clicked");
+                modal.style.display = "none";
+
+                if (!checkLoginStatus()) {
+                    console.log("Redirecting to login page after disclaimer.");
+                } else {
+                    console.log("User already logged in, checking subscription status.");
+                    checkSubscriptionStatus();
+                }
+            });
+
+            if (!localStorage.getItem("token")) {
+                modal.style.display = "block";
+            } else {
+                checkLoginStatus();
+                checkSubscriptionStatus();
+            }
+        });
+    </script>
+   
+ </body>
+</html> 

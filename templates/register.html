@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #243b55, #141e30);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        #form-error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <h2>Create Account</h2>
+        <form id="registerForm">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Register</button>
+            <div id="form-error-message"></div> <!-- Error message placeholder -->
+        </form>
+    </div>
+
+    <script>
+     
+    document.addEventListener("DOMContentLoaded", () => {
+        console.log("DOM fully loaded");
+
+        const registerForm = document.getElementById("registerForm");
+
+        if (!registerForm) {
+            console.error("Register form not found!"); // Debug log
+            return;
+        }
+
+        console.log("Register form found");
+
+        registerForm.addEventListener("submit", async (event) => {
+            event.preventDefault(); // Prevent default form submission
+            console.log("Register form submitted");
+
+            const formData = new FormData(registerForm);
+            console.log("Collected form data:", Object.fromEntries(formData)); // Debug log
+
+            try {
+                const response = await fetch("/api/register", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const result = await response.json();
+                console.log("Parsed response JSON:", result);
+
+                if (!response.ok || result.error) {
+                    console.error("Error from server:", result.error || "Unknown error");
+                    showErrorInForm(result.error || "An unexpected error occurred.");
+                } else {
+                    console.log("Account created successfully:", result.message);
+                    alert(result.message);
+                    window.location.href = "/login"; // Redirect to login
+                }
+            } catch (err) {
+                console.error("Unexpected error during registration:", err);
+                showErrorInForm("An unexpected error occurred. Please try again.");
+            }
+        });
+
+        function showErrorInForm(message) {
+            console.log("Displaying error message:", message);
+
+            let errorMessageDiv = document.getElementById("form-error-message");
+            if (!errorMessageDiv) {
+                // Create the error message div if not present
+                errorMessageDiv = document.createElement("div");
+                errorMessageDiv.id = "form-error-message";
+                errorMessageDiv.style.color = "red";
+                errorMessageDiv.style.marginTop = "10px";
+                registerForm.insertAdjacentElement("beforeend", errorMessageDiv);
+            }
+            errorMessageDiv.textContent = message; // Set the error message
+        }
+    });
+
+
+    </script>
+</body>
+</html>

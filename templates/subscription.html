@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Plan</title>
+    <!-- <link rel="stylesheet" href="/static/css/subscription.css"> -->
+    <style>  
+    /* General Page Styling */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(to bottom, #393d3c, #055d91);
+        color: #0a0505;
+    }
+    
+    .subscription-container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 20px;
+        background: rgb(177, 184, 187);
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    h1 {
+        color: #031014;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+    
+    .trial-notice {
+        font-size: 1.2rem;
+        color: #110707;
+        margin-bottom: 30px;
+    }
+    
+    .subscription-options {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 30px;
+    }
+    
+    .plan {
+        background: #1a73d8;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        width: 40%;
+        text-align: center;
+    }
+    
+    .plan h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: #171705;
+    }
+    
+    .price {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        color: #030a04;
+        font-weight: bold;
+    }
+    
+    .subscribe-button {
+        background-color: #0ebe14;
+        color: rgb(33, 45, 148);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .subscribe-button:hover {
+        background-color: #25197c;
+    }
+    
+    .cancel-section {
+        margin-top: 30px;
+        background: #225dca;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .cancel-section h2 {
+        color: #161704;
+        font-size: 0.5 rem;
+        margin-bottom: 10px;
+    }
+    
+    .cancel-button {
+        background-color: #a8a234;
+        color: rgb(153, 43, 13);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .cancel-button:hover {
+        background-color: #9c2c28;
+    }
+
+    .payment-options {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.payment-button {
+    background-color: #0070ba; /* PayPal Blue */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+.payment-button:hover {
+    background-color: #005c99;
+}
+
+#razorpay-button {
+    background-color: #ff5722; /* Razorpay Orange */
+}
+
+#razorpay-button:hover {
+    background-color: #e64a19;
+}
+
+</style>  
+</head>
+
+</head>
+<body>
+    <div class="subscription-container">
+        <!-- Razorpay Payment -->
+        <div class="payment-options">
+            <h3>Try for 1 month with one-time payment</h3>
+            <button id="razorpay-button" class="payment-button">Pay with Razorpay</button>
+        </div>
+
+        <h1>OR Choose Your Subscription Plan</h1>
+        <p>Enjoy a 3-day free trial! Cancel anytime during the trial.</p>
+
+        <!-- Subscription Options -->
+        <div class="subscription-options">
+            <div class="plan">
+                <h2>Monthly Plan</h2>
+                <p>$10 / Month</p>
+                <button id="subscribe-monthly" class="subscribe-button">Subscribe</button>
+            </div>
+            <div class="plan">
+                <h2>Annual Plan</h2>
+                <p>$100 / Year</p>
+                <button id="subscribe-annual" class="subscribe-button">Subscribe</button>
+            </div>
+        </div>
+
+        <!-- PayPal Payment -->
+        <!-- <div class="payment-options">
+            <h3>Pay with PayPal</h3>
+            <div id="paypal-button-container"></div>
+        </div> -->
+
+        <div id="paypal-button-container" style="display: none;"></div>
+
+        <!-- Status Message -->
+        <div id="subscription-status" class="status"></div>
+    </div>
+
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=AUS4dF8tNdc8h2tuzvpWXGDXsFtsrLObciiNzE24OwlKyWekoV4eX7mYA__VegP6hwYaFPBopnPHsmVS&vault=true&intent=subscription"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const MONTHLY_PLAN_ID = "P-27038261AY248051UM53VZYA"; // Replace with your actual PayPal Monthly Plan ID
+            const ANNUAL_PLAN_ID = "P-6VS15538EJ803001KM53YL4I"; // Replace with your actual PayPal Annual Plan ID
+
+            const statusDiv = document.getElementById("subscription-status");
+            const paymentOptionsDiv = document.getElementById("payment-options");
+
+            const updateStatus = (message, color) => {
+                statusDiv.textContent = message;
+                statusDiv.style.color = color;
+            };
+
+            const showPaymentOptions = (isGooglePay = false) => {
+                paymentOptionsDiv.style.display = "block";
+
+                if (!isGooglePay) {
+                    const paypalContainer = document.getElementById("paypal-button-container");
+                    paypalContainer.innerHTML = ""; // Clear previous button
+
+                    paypal.Buttons({
+                        createSubscription: function (data, actions) {
+                            const planType = localStorage.getItem("selectedPlan");
+                            const planId = planType === "monthly" ? MONTHLY_PLAN_ID : ANNUAL_PLAN_ID;
+                            return actions.subscription.create({ plan_id: planId });
+                        },
+                        onApprove: async function (data) {
+                            updateStatus("PayPal subscription successful!", "green");
+                            window.location.href = "/index3.html"; // Redirect to the dashboard
+
+                        },
+                        onError: function (err) {
+                            console.error("PayPal subscription error:", err);
+                            updateStatus("PayPal subscription failed. Please try again.", "red");
+                        },
+                    }).render("#paypal-button-container");
+                }
+            };
+
+            document.getElementById("subscribe-monthly").addEventListener("click", () => {
+                localStorage.setItem("selectedPlan", "monthly");
+                showPaymentOptions();
+            });
+
+            document.getElementById("subscribe-annual").addEventListener("click", () => {
+                localStorage.setItem("selectedPlan", "annual");
+                showPaymentOptions();
+            });
+               // Razorpay UPI Payment Integration
+               const razorpayButton = document.getElementById("razorpay-button");
+        razorpayButton.addEventListener("click", () => {
+            const options = {
+                key: "rzp_live_oeyqQxUaW48JyP", // Replace with your Razorpay API Key
+                amount: 1000, // Amount in paise (₹10.00)
+                currency: "INR",
+                name: "www.drofn.com",
+                description: "One-time payment for 1-month subscription",
+                image: "https://your-logo-url.com/logo.png", // Optional company logo URL
+                handler: async function (response) {
+                    console.log("Payment successful!", response);
+
+                    // Redirect to dashboard or perform a backend call to update user access
+                    try {
+                        const result = await fetch("/api/verify-payment", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                payment_id: response.razorpay_payment_id,
+                                order_id: response.razorpay_order_id,
+                                signature: response.razorpay_signature,
+                            }),
+                        });
+
+                        if (result.ok) {
+                            // Payment verified, grant access to the dashboard
+                            window.location.href = "/index3.html"; // Redirect to the dashboard
+                        } else {
+                            alert("Payment verification failed. Please contact support.");
+                        }
+                    } catch (error) {
+                        console.error("Error verifying payment:", error);
+                        alert("An error occurred while verifying payment.");
+                    }
+                },
+                prefill: {
+                    name: "CryptoAI",
+                    email: "heebaaltaf@gmail.com",
+                    contact: "9930168658",
+                },
+                theme: {
+                    color: "#FF5722",
+                },
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.on("payment.failed", function (response) {
+                alert("Payment failed: " + response.error.description);
+            });
+
+            rzp.open();
+        });
+        });
+    </script> -->
+    <script>
+    //    document.addEventListener("DOMContentLoaded", () => {
+    //             const API_BASE_URL =
+    //                 window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+    //                     ? "http://127.0.0.1:8000"
+    //                     : "https://crypto-ai-pi.vercel.app";
+
+    //             const razorpayButton = document.getElementById("razorpay-button");
+    //             const userId = localStorage.getItem("user_id");
+
+    //             const paypalContainer = document.getElementById("paypal-button-container");
+               
+
+    //             if (!userId) {
+    //                 updateStatus("User ID not found. Please log in.", "red");
+    //             }
+            document.addEventListener("DOMContentLoaded", () => {
+            const updateStatus = (message, color) => {
+                const statusDiv = document.getElementById("subscription-status");
+                if (statusDiv) {
+                    statusDiv.textContent = message;
+                    statusDiv.style.color = color;
+                } else {
+                    console.error("Status container not found.");
+                }
+            };
+
+            const razorpayButton = document.getElementById("razorpay-button");
+            const API_BASE_URL =
+                    window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+                        ? "http://127.0.0.1:8000"
+                        : "https://crypto-ai-pi.vercel.app";
+            const paypalContainer = document.getElementById("paypal-button-container");
+            const userId = localStorage.getItem("user_id");
+
+            if (!userId) {
+                updateStatus("User ID not found. Please log in.", "red");
+                
+            }
+
+    
+
+            if (razorpayButton) {
+                razorpayButton.addEventListener("click", () => {
+                    // Step 1: Create Razorpay Order
+                    fetch(`${API_BASE_URL}/api/create-order`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            amount: 1,    // ₹100 in paise
+                            user_id: userId // User ID from localStorage
+                        }),
+                    })
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! status: ${response.status}`);
+                            }
+                            return response.json(); // Parse the JSON response from the backend
+                        })
+                        .then((order) => {
+                            // Step 2: Initialize Razorpay with the order details
+                            const options = {
+                                key: "rzp_live_oeyqQxUaW48JyP", // Your Razorpay Key
+                                amount: order.amount,
+                                currency: "INR",
+                                name: "www.drofn.com",
+                                description: "One-time payment for 1-month subscription",
+                                order_id: order.id, // Razorpay Order ID
+                                handler: function (response) {
+                                    console.log("Payment ID:", response.razorpay_payment_id);
+                                    console.log("Order ID:", order.id);
+
+                                    // Step 3: Verify the payment on the backend
+                                    // fetch(`${API_BASE_URL}/api/razorpay-payment`, {
+                                    //     method: "POST",
+                                    //     headers: { "Content-Type": "application/json" },
+                                    //     body: JSON.stringify({
+                                    //         payment_id: response.razorpay_payment_id, // From Razorpay handler
+                                    //         order_id: order.id,                      // From Razorpay Order
+                                    //         user_id: userId,                         // User ID
+                                    //     }),
+                                    // })
+                                    fetch(`${API_BASE_URL}/api/razorpay-payment`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: order.id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    user_id:userId
+                                }),
+                            })
+                                        .then((res) => {
+                                            console.log("response1", res); // Debugging raw response
+                                            return res.json();           // Parse JSON response
+                                        })
+                                        .then((data) => {
+                                            console.log(data); // Debugging parsed data
+                                            if (data.success) {
+                                                console.log("Payment successful. Redirecting to dashboard...");
+                                                window.location.href = "/dashboard3"; // Redirect to dashboard
+                                            } else {
+                                                alert("Payment verification failed!");
+                                            }
+                                        });
+                                },
+                                prefill: {
+                                    name: "CryptoAI",
+                                    email: "heebaaltaf@gmail.com",
+                                    contact: "9930168658",
+                                },
+                                theme: { color: "#FF5722" },
+                            };
+
+                            const rzp = new Razorpay(options);
+                            rzp.on("payment.failed", function (response) {
+                                alert("Payment failed: " + response.error.description);
+                            });
+                            rzp.open(); // Open Razorpay checkout modal
+                        })
+                        .catch((error) => {
+                            console.error("Error creating Razorpay order:", error);
+                            alert("Failed to create Razorpay order. Please try again.");
+                        });
+                });
+
+                }
+            
+
+    
+            // PayPal Integration
+            // Show PayPal button when a plan is selected
+  
+
+            const showPayPalButton = (planType) => {
+                if (paypalContainer) {
+                    paypalContainer.innerHTML = ""; // Clear any previous PayPal buttons
+                    paypal.Buttons({
+                        createSubscription: function (data, actions) {
+                            const planId = planType === "monthly"
+                                ? "P-27038261AY248051UM53VZYA" // Replace with actual Monthly Plan ID
+                                : "P-6VS15538EJ803001KM53YL4I"; // Replace with actual Annual Plan ID
+                            return actions.subscription.create({ plan_id: planId });
+                        },
+                        onApprove: function (data) {
+                            console.log("PayPal Subscription ID:", data.subscriptionID);
+                            fetch("/api/paypal-payment", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    subscription_id: data.subscriptionID,
+                                    user_id: userId,
+                                }),
+                            })
+                                .then((res) => res.json())
+                                .then((data) => {
+                                    if (data.success) {
+                                        window.location.href =  "/index3.html";
+                                    } else {
+                                        updateStatus("Payment processing failed!", "red");
+                                    }
+                                });
+                        },
+                        onError: function (err) {
+                            console.error("PayPal subscription error:", err);
+                            updateStatus("PayPal subscription failed. Please try again.", "red");
+                        },
+                    }).render("#paypal-button-container");
+
+                    // Make the PayPal container visible
+                    paypalContainer.style.display = "block";
+                } else {
+                    console.error("PayPal button container not found.");
+                }
+            };
+
+            // Event listeners for subscription buttons
+            const monthlyButton = document.getElementById("subscribe-monthly");
+            const annualButton = document.getElementById("subscribe-annual");
+
+            if (monthlyButton) {
+                monthlyButton.addEventListener("click", () => {
+                    localStorage.setItem("selectedPlan", "monthly");
+                    updateStatus("Monthly plan selected. Please proceed with PayPal.", "green");
+                    showPayPalButton("monthly");
+                });
+            }
+
+            if (annualButton) {
+                annualButton.addEventListener("click", () => {
+                    localStorage.setItem("selectedPlan", "annual");
+                    updateStatus("Annual plan selected. Please proceed with PayPal.", "green");
+                    showPayPalButton("annual");
+                });
+            }
+        });
+    </script>
+    
+</body>

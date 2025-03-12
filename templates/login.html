@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        /* Resetting margins and paddings */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #141e30, #243b55); /* Gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: white;
+        }
+
+        /* Styling the form container */
+        form {
+            background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        /* Styling form inputs */
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
+        }
+
+        /* Styling the button */
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            background-color: #4caf50; /* Green background */
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Button hover effect */
+        button:hover {
+            background-color: #45a049; /* Darker green */
+        }
+
+        /* Link to create an account */
+        .create-account {
+            display: block;
+            margin-top: 10px;
+            color: #4caf50;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s ease;
+        }
+
+        .create-account:hover {
+            color: #45a049; /* Darker green on hover */
+        }
+
+        /* Heading styling */
+        h2 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-container">
+        <form id="loginForm">
+            <h2>Login</h2>
+            <!-- Email Input -->
+            <p>   Username/Email
+            <input type="email" name="email" placeholder="Email" required>
+            </p>
+            <!-- Password Input -->
+            <p>   Password
+            <input type="password" name="password" placeholder="Password" required>
+            <!-- Error Message Placeholder -->
+            </p>
+            <div id="form-error-message" style="color: red; margin-top: 10px;"></div>
+            <!-- Submit Button -->
+            <button type="submit">Login</button>
+
+            <p>
+                <a href="/forget-password" class="forget-password" style="color: blue;">Forgot Password?</a>
+            </p>
+            <!-- Link to Register -->
+            <p>
+                Don't have an account? 
+                <a href="/register" class="create-account" style="color: blue;">Create Account</a>
+            </p>
+        </form>
+    </div>
+
+<script>
+   document.addEventListener("DOMContentLoaded", () => {
+    console.log("DOM fully loaded");
+
+    const loginForm = document.getElementById("loginForm");
+    const redirectURL = new URLSearchParams(window.location.search).get("redirect_url");
+
+
+    if (!loginForm) {
+        console.error("Login form not found!"); // Debug log
+        return;
+    }
+
+    console.log("Login form found");
+
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault(); // Prevent default form submission
+        console.log("Login form submitted");
+
+        const formData = new FormData(loginForm);
+        console.log("Collected form data:", Object.fromEntries(formData)); // Debug log
+
+        try {
+            const response = await fetch("/api/login", {
+                method: "POST",
+                body: formData,
+            });
+
+            // Check if the response is not OK (e.g., status is not 200)
+            if (!response.ok) {
+                const errorResult = await response.json();
+                console.error("Error from server:", errorResult.detail || errorResult.error || "Unknown error");
+                showErrorInForm(errorResult.detail || errorResult.error || "An unexpected error occurred.");
+                return;
+            }
+
+            // Handle successful response
+            const result = await response.json();
+            console.log("Parsed response JSON:", result);
+
+           
+            if (result.access_token) {
+                console.log("Login successful:", result.message);
+                alert(result.message || "Login successful!");
+                localStorage.setItem("user_id", result.user_id); // Save user ID
+                localStorage.setItem("token", result.access_token); // Save token
+                localStorage.setItem("email", formData.get("email")); // Save email
+                // window.location.href = "/dashboard"; // Redirect to dashboard
+                // Redirect to Crypto AI with the token
+                if (redirectURL) {
+                    window.location.href = `${redirectURL}?token=${result.access_token}`;
+                } else {
+                     window.location.href = "/dashboard3"; // Default redirect
+                    // window.location.href =  "/index3.html"; // Default redirect
+                }
+
+
+
+            } else {
+                console.error("Access token missing in response.");
+                showErrorInForm("An unexpected error occurred. Please try again.");
+            }
+        } catch (err) {
+            console.error("Unexpected error during login:", err);
+            showErrorInForm("An unexpected error occurred. Please try again.");
+        }
+    });
+
+    function showErrorInForm(message) {
+        console.log("Displaying error message:", message);
+
+        let errorMessageDiv = document.getElementById("form-error-message");
+        if (!errorMessageDiv) {
+            errorMessageDiv = document.createElement("div");
+            errorMessageDiv.id = "form-error-message";
+            errorMessageDiv.style.color = "red";
+            errorMessageDiv.style.marginTop = "10px";
+            loginForm.insertAdjacentElement("beforeend", errorMessageDiv);
+        }
+        errorMessageDiv.textContent = message;
+    }
+});
+
+</script>
+</body>
+</html>

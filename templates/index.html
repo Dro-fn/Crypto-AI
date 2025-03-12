@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto AI</title>
+    <!-- Link to the CSS file in the static folder -->
+    <!-- <link rel="stylesheet" href="/static/css/styles.css"> -->
+     <style>/* Global Styling */
+        body {
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #0c0c0b, #746f93);
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(to right, hwb(245 55% 11%), hsl(183, 35%, 61%));
+            color: white;
+            padding: 20px 10px;
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: 1px;
+        }
+        
+        header p {
+            margin: 10px 0;
+            font-size: 1.2rem;
+        }
+        
+        main {
+            padding: 30px;
+        }
+        
+        /* Buttons Styling */
+        button {
+            padding: 15px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, background-color 0.3s;
+        }
+        
+        button:hover {
+            transform: scale(1.1);
+        }
+        
+        #start-recognition {
+            background-color: hsl(148, 43%, 60%);
+            color: white;
+        }
+        
+        #start-recognition:hover {
+            background-color: #09842c;
+        }
+        
+        #end-class {
+            background-color: #e4837b;
+            color: white;
+        }
+        
+        #end-class:hover {
+            background-color: hsl(11, 91%, 34%);
+        }
+        
+        /* Output Box Styling */
+        #output {
+            margin: 20px auto;
+            font-size: 1.3rem;
+            color: #444;
+            padding: 20px;
+            border: 2px solid rgb(9, 176, 151);
+            border-radius: 10px;
+            background-color: hsl(0, 38%, 97%);
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+        }
+        
+        /* Footer Styling */
+        footer {
+            margin-top: 30px;
+            background: rgb(164, 167, 200);
+            color: white;
+            padding: 10px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        
+        footer p {
+            margin: 0;
+            font-size: 1rem;
+        }
+        
+        /* Dropdown Menu Styling */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        #crypto-dropdown-button {
+            background-color: hsl(148, 43%, 60%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        
+        .dropdown-search {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f9f9f9;
+        }
+        
+        #crypto-dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            width: 250px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        #crypto-dropdown-menu .dropdown-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        #crypto-dropdown-menu .dropdown-item:hover {
+            background-color: hsl(148, 43%, 85%);
+        }
+        
+        .dropdown:hover #crypto-dropdown-menu {
+            display: block;
+        }
+        
+        /* Characters Styling */
+        #characters-container {
+            display: flex;
+            flex-wrap: wrap; /* Wrap items */
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .character-wrapper {
+            position: relative;
+            display: inline-block;
+            text-align: center;
+        }
+        
+        .character-wrapper img {
+            max-width: 200px;
+            border-radius: 10px;
+            animation: bounce 2s infinite;
+        }
+        
+        
+        
+        
+        
+        /* Analysis and Recommendation Button */
+        #analysis-button {
+            position: absolute;
+            top: 80px;
+            right: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        #analysis-button:hover {
+            background-color: #0056b3;
+        }
+        
+        /* Analysis Box */
+        .analysis-box {
+            position: absolute;
+            top: 140px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 80vh;
+            display: none;
+        }
+        
+        .analysis-box h3 {
+            margin: 0 0 10px;
+            font-size: 1.5rem;
+            color: #333;
+        }
+        
+        #analysis-response {
+            font-size: 1rem;
+            color: #555;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        
+        /* Specific Body Styling for Login Page */
+        body.login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(to bottom, #ff4444, #880000); /* Unique background for login */
+        }
+        
+        /* Login Page Styling */
+        .login-container {
+            background: rgba(230, 34, 34, 0.8);
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            margin: 0 auto;
+        }
+        
+        #form-error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            color: #333;
+        }
+        
+        #agree-button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        #agree-button:hover {
+            background-color: #0056b3;
+        }
+        
+        /* Animations */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        </style>
+</head>
+<body>
+    <!-- Disclaimer Modal -->
+    <div id="disclaimer-modal" class="modal" style = "display: none";>
+        <div class="modal-content">
+            <h2>Important Disclaimer</h2>
+            <p>
+                The recommendations and insights provided by this system are for <strong>educational purposes only</strong> 
+                and should not be construed as financial advice. Trading in financial markets, including cryptocurrencies 
+                and futures, involves significant risks and may not be suitable for all investors.
+            </p>
+            <p>
+                Before acting on any analysis or recommendation:
+                <ul>
+                    <li><strong>Conduct Thorough Research:</strong> Always perform your own in-depth analysis and due diligence.</li>
+                    <li><strong>Consider Financial Risk:</strong> Understand your risk tolerance and be prepared for potential losses.</li>
+                    <li><strong>Consult Professionals:</strong> Seek advice from licensed financial advisors or professionals for personalized guidance.</li>
+                </ul>
+            </p>
+            <p>
+                By proceeding, you acknowledge that the predictions and strategies shared are based on historical 
+                and current data but <strong>do not guarantee future results.</strong> Use this information responsibly 
+                and understand that you assume full responsibility for any decisions made based on these insights.
+            </p>
+            <button id="agree-button">I Agree</button>
+        </div>
+    </div>
+
+    <header>
+        <h1>Crypto AI</h1>
+        <p> 24 HOUR analysis!</p>
+    </header>
+    <main>
+        <p id="user-email" style="display: none; font-weight: bold; background-color: rgb(0, 255, 85)"></p> <!-- User email display -->
+        <button
+            id="logout-button"
+            style="display: none; background-color: red; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;">
+            Logout
+        </button>
+        
+        <!-- Characters with Speech Bubbles -->
+        <div id="characters-container">
+            <div class="character-wrapper">
+                <img id="catnap" class="character" src="/static/images/crypto.webp" alt="bitcoin">
+            </div>
+            <div class="character-wrapper">
+                <img id="funbot" class="character" src="/static/images/dall1.webp" alt="FunBot">
+            </div>
+            <div class="character-wrapper">
+                <img id="clukr" class="character" src="/static/images/dall4.webp" alt="Clukr">
+            </div>
+            <div class="character-wrapper">
+                <img id="clukr" class="character" src="/static/images/dall2.webp" alt="Clukir">
+            </div>
+            <div class="character-wrapper">
+                <img id="raddy" class="character" src="/static/images/dall5.webp" alt="Raddy">
+            </div>
+        </div>
+
+        <div id="button-container">
+            <div class="dropdown">
+                <button id="crypto-dropdown-button">Select Cryptocurrency</button>
+                <div id="crypto-dropdown-menu" class="dropdown-menu">
+                    <input 
+                        type="text" 
+                        id="crypto-search-input" 
+                        placeholder="Search Cryptocurrency..." 
+                        class="dropdown-search" 
+                    />
+                </div>
+            </div>
+            <button id="start-recognition">🎤 Begin the Conversation</button>
+            <button id="end-class">⏹ End Conversation</button>
+        </div>
+
+        <!-- Analysis and Recommendation Button -->
+        <button id="analysis-button">📊 Analysis and Recommendation</button>
+
+        <!-- Analysis and Recommendation Box -->
+        <div id="analysis-response-container" class="analysis-box">
+            <h3>Analysis and Recommendation</h3>
+            <div id="analysis-response"></div>
+        </div>
+
+        <!-- Output Area -->
+        <div id="output">Let's start trading!</div>
+    </main>
+    <footer>
+        <p>Made with ❤️ by DroFn's Team</p>
+    </footer>
+    
+    <script src="/static/js/dynamic-listening.js" defer></script>
+    <!-- <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM fully loaded");
+    
+            const modal = document.getElementById("disclaimer-modal");
+            const agreeButton = document.getElementById("agree-button");
+            const userEmailDisplay = document.getElementById("user-email");
+            const logoutButton = document.getElementById("logout-button");
+            // const vercelLoginURL = "https://loginpipeline.vercel.app";
+            // console.log(`${encodeURIComponent(window.location.href)}`)
+            // Function to check login status
+            const checkLoginStatus = () => {
+                const token = localStorage.getItem("token");
+                const email = localStorage.getItem("email");
+    
+                if (!token || !email) {
+                    console.log("User not logged in. Redirecting to login page.");
+                    // window.location.href = `${vercelLoginURL}/login?redirect_url=${encodeURIComponent(window.location.href)}`;
+                    window.location.href = "/login"; // Redirect to login if not logged in
+                    // window.location.href = "/login"; // Redirect to login if not logged in
+                    return false;
+                }
+    
+                console.log("User is logged in:", email);
+                userEmailDisplay.textContent = `Logged in as: ${email}`;
+                userEmailDisplay.style.display = "block";
+                logoutButton.style.display = "block";
+    
+                return true;
+            };
+    
+                // Check login status on page load
+                if (!checkLoginStatus()) {
+                modal.style.display = "block"; // Show modal for non-logged-in users
+            } else {
+                modal.style.display = "none"; // Hide modal for logged-in users
+            }
+
+            // Handle logout functionality
+            logoutButton?.addEventListener("click", () => {
+                console.log("Logout button clicked");
+                localStorage.removeItem("token");
+                localStorage.removeItem("email");
+                alert("Logged out successfully!");
+                window.location.href = "/login";
+            });
+    </script>  -->
+
+
+    
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            console.log("DOM fully loaded");
+
+            const modal = document.getElementById("disclaimer-modal");
+            const agreeButton = document.getElementById("agree-button");
+            const userEmailDisplay = document.getElementById("user-email");
+            const logoutButton = document.getElementById("logout-button");
+
+            // Function to check login status
+            const checkLoginStatus = () => {
+                const token = localStorage.getItem("token");
+                const email = localStorage.getItem("email");
+
+                if (!token || !email) {
+                    console.log("User not logged in. Redirecting to login page.");
+                    window.location.href = "/login"; // Redirect to login if not logged in
+                    return false;
+                }
+
+                console.log("User is logged in:", email);
+                userEmailDisplay.textContent = `Logged in as: ${email}`;
+                userEmailDisplay.style.display = "block";
+                logoutButton.style.display = "block";
+
+                return true;
+            };
+
+            // Handle disclaimer modal
+            if (modal && agreeButton) {
+                console.log("Disclaimer modal and agree button found");
+    
+                // Show modal on page load
+                modal.style.display = "block";
+    
+                agreeButton.addEventListener("click", () => {
+                    console.log("Agree button clicked");
+                    modal.style.display = "none"; // Hide modal
+    
+                    if (!checkLoginStatus()) {
+                        console.log("Redirecting to login page after disclaimer.");
+                    } else {
+                        console.log("User already logged in, showing dashboard.");
+                        modal.style.display = "none";
+                    }
+                });
+            } else {
+                console.error("Modal or agree button not found");
+            }
+
+            // Handle logout functionality
+            logoutButton?.addEventListener("click", () => {
+                console.log("Logout button clicked");
+                localStorage.removeItem("token");
+                localStorage.removeItem("email");
+                alert("Logged out successfully!");
+                window.location.href = "/login";
+            });
+        }); 
+    </script> 
+    
+</body>
+</html>
