@@ -1,0 +1,27 @@
+
+uvicorn
+python-dotenv
+python-jose
+fastapi>=0.100.0
+pydantic==2.10.1
+pydantic-core==2.27.1
+boto3
+openai
+pandas
+requests
+binance
+python-binance
+# scikit-learn
+passlib
+ta
+numpy
+jinja2
+pydantic[email]
+fastapi-mail
+psycopg2-binary 
+python-multipart
+razorpay
+setuptools
+bcrypt==3.2.2
+
+
